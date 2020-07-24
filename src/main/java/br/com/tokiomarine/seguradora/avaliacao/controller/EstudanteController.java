@@ -1,7 +1,8 @@
 package br.com.tokiomarine.seguradora.avaliacao.controller;
 
-import javax.validation.Valid;
-
+import br.com.tokiomarine.seguradora.avaliacao.entidade.Estudante;
+import br.com.tokiomarine.seguradora.avaliacao.service.EstudandeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,62 +11,61 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import br.com.tokiomarine.seguradora.avaliacao.entidade.Estudante;
-import br.com.tokiomarine.seguradora.avaliacao.service.EstudandeService;
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/estudantes/")
 public class EstudanteController {
 
-	// TODO efetue a correção dos problemas que existem na classe Estudante Controller
-	EstudandeService service;
+    @Autowired
+    private EstudandeService estudandeService;
 
-	@GetMapping("criar")
-	public String iniciarCastrado(Estudante estudante) {
-		return "cadastrar-estudante";
-	}
 
-	@GetMapping("listar")
-	public String listarEstudantes(Model model) {
-		model.addAttribute("estudtes", service.buscarEstudantes());
-		return "index";
-	}
+    @GetMapping("criar")
+    public String iniciarCastrado(Estudante estudante) {
+        return "cadastrar-estudante";
+    }
 
-	@PostMapping("add")
-	public String adicionarEstudante(@Valid Estudante estudante, BindingResult result, Model model) {
-		if (result.hasErrors()) {
-			return "cadastrar-estudante";
-		}
+    @GetMapping("listar")
+    public String listarEstudantes(Model model) {
+        model.addAttribute("estudantes", estudandeService.buscarEstudantes());
+        return "index";
+    }
 
-		service.cadastrarEstudante(estudante);
+    @PostMapping("add")
+    public String adicionarEstudante(@Valid Estudante estudante, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return "cadastrar-estudante";
+        }
 
-		return "redirect:listar";
-	}
+        estudandeService.cadastrarEstudante(estudante);
 
-	@GetMapping("editar/{id}")
-	public String exibirEdicaoEstudante(long id, Model model) {
-		Estudante estudante = service.buscarEstudante(id);
-		model.addAttribute("estudante", estudante);
-		return "atualizar-estudante";
-	}
+        return "redirect:listar";
+    }
 
-	@PostMapping("atualizar/{id}")
-	public String atualizarEstudante(@PathVariable("id") long id, @Valid Estudante estudante, BindingResult result, Model model) {
-		if (result.hasErrors()) {
-			// estudante.setId(id);
-			return "atualizar-estudante";
-		}
+    @GetMapping("editar/{id}")
+    public String exibirEdicaoEstudante(@PathVariable("id") long id, Model model) {
+        Estudante estudante = estudandeService.buscarEstudante(id);
+        model.addAttribute("estudante", estudante);
+        return "atualizar-estudante";
+    }
 
-		service.atualizarEstudante(estudante);
+    @PostMapping("atualizar/{id}")
+    public String atualizarEstudante(@PathVariable("id") long id, @Valid Estudante estudante, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return "atualizar-estudante";
+        }
 
-		model.addAttribute("estudantes", service.buscarEstudantes());
-		return "index";
-	}
+        estudandeService.atualizarEstudante(estudante);
 
-	@GetMapping("apagar/{id}")
-	public String apagarEstudante(@PathVariable("id") long id, Model model) {
-		// TODO IMPLEMENTAR A EXCLUSAO DE ESTUDANTES
-		model.addAttribute("estudantes", service.buscarEstudantes());
-		return "index";
-	}
+        model.addAttribute("estudantes", estudandeService.buscarEstudantes());
+        return "index";
+    }
+
+    @GetMapping("apagar/{id}")
+    public String apagarEstudante(@PathVariable("id") long id, Model model) {
+        estudandeService.apagarEstudante(id);
+        model.addAttribute("estudantes", estudandeService.buscarEstudantes());
+        return "index";
+    }
 }
